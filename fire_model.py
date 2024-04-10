@@ -10,11 +10,20 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import matplotlib.pyplot as plt
+
 
 import sys
 # Update imports as needed
 
-# from data_clean import *
+def plot_errors(model, X_valid, y_valid):
+    residuals = y_valid - model.predict(X_valid)
+    plt.subplot(1, 2, 1)
+    plt.hist(residuals['fire_spread_rate'])
+    plt.subplot(1, 2, 2)
+    plt.hist(residuals['duration'])
+    plt.show()
+    plt.close()
 
 # pd.set_option('display.max_rows', None)
 
@@ -28,11 +37,12 @@ data['fire_start_date'] = pd.to_datetime(data['fire_start_date'], errors='coerce
 data['uc_fs_date'] = pd.to_datetime(data['uc_fs_date'], errors='coerce')
 data['ia_arrival_at_fire_date'] = pd.to_datetime(data['ia_arrival_at_fire_date'], errors='coerce')
 mask = (-pd.isna(data['fire_start_date'])) | (-pd.isna(data['uc_fs_date']))
-data = data[mask]
+data = data[pd.notna(data['fire_start_date']) & pd.notna(data['uc_fs_date'])]
 data['duration'] = (data['uc_fs_date'] - data['fire_start_date']).dt.total_seconds()
 data['response_time'] = (data['uc_fs_date'] - data['ia_arrival_at_fire_date']).dt.total_seconds()
 data = data[pd.notna(data['duration']) & pd.notna(data['response_time'])]
-X = data[['fire_year', 'current_size', 'size_class', 'fire_location_latitude', 'fire_location_longitude', 'weather_conditions_over_fire', 'temperature', 'relative_humidity', 'wind_speed', 'response_time']]
+# X = data[['current_size', 'size_class', 'weather_conditions_over_fire', 'temperature', 'relative_humidity', 'wind_speed', 'response_time']]
+X = data[['size_class', 'temperature', 'relative_humidity', 'wind_speed', 'response_time']]
 y = data[['fire_spread_rate', 'duration']]
 # print(y)
 X_train, X_valid, y_train, y_valid = train_test_split(X, y)
@@ -70,21 +80,15 @@ def cat2num(df):
         'E': 4
     }
     df['size_class'] = df['size_class'].map(size_class_mapping)
-    weather_condition_mapping = {
-        'Cloudy': 0, 
-        'Clear': 1, 
-        'CB Dry': 2, 
-        'Rainshowers': 3, 
-        'CB Wet': 4
-    }
-    df['weather_conditions_over_fire'] = df['weather_conditions_over_fire'].map(weather_condition_mapping)
+    # weather_condition_mapping = {
+    #     'Cloudy': 0, 
+    #     'Clear': 1, 
+    #     'CB Dry': 2, 
+    #     'Rainshowers': 3, 
+    #     'CB Wet': 4
+    # }
+    # df['weather_conditions_over_fire'] = df['weather_conditions_over_fire'].map(weather_condition_mapping)
     return df
-
-if y.isnull().any().any():
-    print("Rows with NaN values:")
-    print(y[y.isnull().any(axis=1)])
-else:
-    print('no NaN exist')
 
 linear_model = make_pipeline(
     FunctionTransformer(cat2num), 
@@ -94,6 +98,7 @@ linear_X_train = X_train.copy()
 linear_X_valid = X_valid.copy()
 linear_model.fit(linear_X_train, y_train)
 print(linear_model.score(linear_X_valid, y_valid))
+plot_errors(linear_model, X_valid.copy(), y_valid)
 
 
 # %%
@@ -109,6 +114,7 @@ kNN_X_train = X_train.copy()
 kNN_X_valid = X_valid.copy()
 kNN_model.fit(kNN_X_train, y_train)
 print(kNN_model.score(kNN_X_valid, y_valid))
+plot_errors(kNN_model, X_valid.copy(), y_valid)
 # %%
 # random forest
 rf_X_train = X_train.copy()
@@ -126,7 +132,7 @@ mlp_X_train = X_train.copy()
 mlp_X_valid = X_valid.copy()
 mlp_model = make_pipeline(
     FunctionTransformer(cat2num), 
-    MLPRegressor()
+    MLPRegressor(hidden_layer_sizes=(8, 6),activation='logistic', solver='lbfgs')
 )
 mlp_model.fit(mlp_X_train, y_train)
 print(mlp_model.score(mlp_X_valid, y_valid))
