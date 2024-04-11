@@ -6,6 +6,7 @@ from hmmlearn import hmm
 
 data = pd.read_csv("fire_data.csv")
 
+#might have to change these later
 X = data[['fire_year', 'current_size', 'size_class', 'fire_location_latitude', 'fire_location_longitude', 'weather_conditions_over_fire', 'temperature', 'relative_humidity', 'wind_speed']]
 y = data['fire_start_date']
 
