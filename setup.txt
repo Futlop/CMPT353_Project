@@ -1,6 +1,9 @@
 Required libraries (so far):
-openpyxl, numpy, pandas, sys
+openpyxl, numpy, pandas, sys, scikit-learn, scipy, matplotlib
 
 How to run:
 data_clean.py
 	run on command line like this: python data_clean.py fp-historical-wildfire-data-2006-2021.xlsx
+
+fire_model.py
+	run on command line like this: python fire_model.py fire_data.csv
