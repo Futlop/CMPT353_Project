@@ -104,3 +104,18 @@ mlp_valid = mlp.score(X_valid, y_valid)
 scores = pd.DataFrame({'Score': ['Training', 'Validation'], 'Naive Bayes': [gnb_train, gnb_valid], 'K Nearest Neighbours': [knn_train, knn_valid], 'Random Forest Classifier': [rfc_train, rfc_valid], 'Neural Network Classifier': [mlp_train, mlp_valid]})
 scores = scores.set_index('Score')
 scores.to_csv("ML_scores.csv")
+
+
+
+
+scores = pd.read_csv("ML_scores.csv", index_col='Score')
+ax = scores.T.plot(kind='bar', figsize=(10, 6))
+
+plt.title('Machine Learning Model Scores')
+plt.xlabel('Models')
+plt.ylabel('Scores')
+plt.xticks(rotation=45)
+plt.legend(title='Data Split')
+
+plt.tight_layout()  
+plt.show()
