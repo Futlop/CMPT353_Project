@@ -109,13 +109,26 @@ scores.to_csv("ML_scores.csv")
 
 
 scores = pd.read_csv("ML_scores.csv", index_col='Score')
-ax = scores.T.plot(kind='bar', figsize=(10, 6))
+
+ax = scores.plot(kind='bar', figsize=(10, 6))
 
 plt.title('Machine Learning Model Scores')
 plt.xlabel('Models')
 plt.ylabel('Scores')
+
 plt.xticks(rotation=45)
 plt.legend(title='Data Split')
 
-plt.tight_layout()  
+ax.set_ylim(0.5, 1.0)
+ax.set_yticks([0.5, 0.75, 1.0]) 
+ax.set_yticklabels(['0.5', '0.75', '1.0'])
+
+ax.yaxis.grid(True, which='minor')
+ax.yaxis.set_minor_locator(plt.MultipleLocator(0.05))
+
+for tic in ax.yaxis.get_minor_ticks():
+    tic.label1.set_visible(False)
+
+plt.tight_layout()
+
 plt.show()
