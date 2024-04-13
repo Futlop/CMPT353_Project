@@ -22,6 +22,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
 import sys
 
 def clean_data(file):
@@ -76,7 +78,7 @@ data = data[pd.notna(data['fire_start_date']) & pd.notna(data['uc_fs_date'])]
 data['duration'] = (data['uc_fs_date'] - data['fire_start_date']).dt.total_seconds()
 data['response_time'] = (data['ia_arrival_at_fire_date'] - data['fire_start_date']).dt.total_seconds()
 data = data[pd.notna(data['duration']) & pd.notna(data['response_time'])]
-X = data[['fuel_type', 'weather_conditions_over_fire', 'size_class', 'temperature', 'relative_humidity', 'wind_speed', 'response_time', 'fire_location_latitude', 'fire_location_longitude', 'general_cause_desc',  'fire_year']]
+X = data[['weather_conditions_over_fire', 'size_class', 'temperature', 'relative_humidity', 'wind_speed', 'response_time', 'fire_location_latitude', 'fire_location_longitude', 'general_cause_desc',  'fire_year']]
 y = data[['fire_spread_rate']]
 X_train, X_valid, y_train, y_valid = train_test_split(X, y)
 # %%
@@ -94,7 +96,7 @@ def cat2num(df):
 
 preprocessor = ColumnTransformer(
     transformers=[
-        ('unorder_cat', OneHotEncoder(categories='auto', handle_unknown='ignore'), ['weather_conditions_over_fire', 'general_cause_desc', 'fuel_type']),
+        ('unorder_cat', OneHotEncoder(categories='auto', handle_unknown='ignore'), ['weather_conditions_over_fire', 'general_cause_desc']),
         ('order_cat', FunctionTransformer(cat2num), ['size_class'])
     ])
 # %%
@@ -251,32 +253,36 @@ def compare_score(score1, score2):
         return stats.mannwhitneyu(score1, score2).pvalue
 # %%
 # Cross-validation: Linear Regression
-linear_cv_scores = cross_val_score(linear_model, X.copy(), y, cv=10, scoring='neg_root_mean_squared_error')
-linear_itr1_cv_scores = cross_val_score(linear_model_itr1, X_itr1.copy(), y, cv=10, scoring='neg_root_mean_squared_error')
+linear_cv_scores = cross_val_score(linear_model, X.copy(), y, cv=40, scoring='r2')
+linear_itr1_cv_scores = cross_val_score(linear_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Linear regression old vs new: ', compare_score(linear_cv_scores , linear_itr1_cv_scores))
 
 # %%
 # Cross-validation: K-nearest Neighbors
-knn_cv_scores = cross_val_score(kNN_model, X.copy(), y, cv=10, scoring='r2')
-knn_itr1_cv_scores = cross_val_score(kNN_model_itr1, X_itr1.copy(), y, cv=10, scoring='r2')
+knn_cv_scores = cross_val_score(kNN_model, X.copy(), y, cv=40, scoring='r2')
+knn_itr1_cv_scores = cross_val_score(kNN_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('K-nearest neighbors old vs new: ', compare_score(knn_cv_scores, knn_itr1_cv_scores))
 
 # %%
 # Cross-validation: Random Forest
-rf_cv_scores = cross_val_score(rf_model, X.copy(), y, cv=10, scoring='r2')
-rf_itr1_cv_scores = cross_val_score(rf_model_itr1, X_itr1.copy(), y, cv=10, scoring='r2')
+rf_cv_scores = cross_val_score(rf_model, X.copy(), y, cv=40, scoring='r2')
+rf_itr1_cv_scores = cross_val_score(rf_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Random forest old vs new: ', compare_score(rf_cv_scores, rf_itr1_cv_scores))
 
 # %%
 # Cross-validation: Neural Network
-mlp_cv_scores = cross_val_score(mlp_model, X.copy(), y, cv=10, scoring='r2')
-mlp_itr1_cv_scores = cross_val_score(mlp_model_itr1, X_itr1.copy(), y, cv=10, scoring='r2')
+mlp_cv_scores = cross_val_score(mlp_model, X.copy(), y, cv=40, scoring='r2')
+mlp_itr1_cv_scores = cross_val_score(mlp_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Neural Network old vs new: ', compare_score(mlp_cv_scores, mlp_itr1_cv_scores))# %%
 
 
 # %%
 # Cross-validation: Gradient Boosting
-xgb_cv_scores = cross_val_score(xgb_model, X.copy(), y, cv=10, scoring='r2')
-xgb_itr1_cv_scores = cross_val_score(xgb_model_itr1, X_itr1.copy(), y, cv=10, scoring='r2')
+xgb_cv_scores = cross_val_score(xgb_model, X.copy(), y, cv=40, scoring='r2')
+xgb_itr1_cv_scores = cross_val_score(xgb_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Gradient Boosting old vs new: ', compare_score(xgb_cv_scores, xgb_itr1_cv_scores))
+# %%
+# Cross-validation: All
+anova = stats.f_oneway(linear_cv_scores, knn_cv_scores, rf_cv_scores, mlp_cv_scores)
+print(anova.pvalue)
 # %%
