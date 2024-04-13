@@ -132,3 +132,39 @@ def plot_errors(model, X_valid, y_valid):
     plt.hist(residuals['duration'])
     plt.close()
 # %%
+
+import seaborn as sns
+
+correlations = {
+    'current_size': {'fire_spread_rate': 0.07904327962635205, 'duration': 0.03018501036834419},
+    'size_class': {'fire_spread_rate': 0.4425313711486078, 'duration': 0.0542515909201817},
+    'weather_conditions_over_fire': {'fire_spread_rate': 0.02544602061949344, 'duration': -0.017183250296072032},
+    'temperature': {'fire_spread_rate': 0.14703346007542073, 'duration': -0.01341779673022259},
+    'relative_humidity': {'fire_spread_rate': -0.13496297443756816, 'duration': -0.02125557984998247},
+    'wind_speed': {'fire_spread_rate': 0.15571609723825824, 'duration': 0.02061171268020623},
+    'response_time': {'fire_spread_rate': 0.18809034085791815, 'duration': 0.08352398933648272}
+}
+feature_importances = {
+    'current_size': 0.14600742581278667,
+    'size_class': 0.007771569288176591,
+    'weather_conditions_over_fire': 0.026574156836813752,
+    'temperature': 0.11155985814792427,
+    'relative_humidity': 0.0640174445822936,
+    'wind_speed': 0.22189227384294344,
+    'response_time': 0.42217727148906165
+}
+
+corr_df = pd.DataFrame(correlations).T
+
+plt.figure(figsize=(10, 6))
+sns.heatmap(corr_df, annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation between Features and Targets')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.bar(range(len(feature_importances)), list(feature_importances.values()), align='center')
+plt.xticks(range(len(feature_importances)), list(feature_importances.keys()), rotation=45)
+plt.title('Feature Importances from Random Forest')
+plt.ylabel('Importance')
+plt.tight_layout()
+plt.show()
