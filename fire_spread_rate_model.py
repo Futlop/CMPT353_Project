@@ -60,10 +60,6 @@ def plot_error(model, x, y):
     plt.show()
     plt.close()
 
-    residuals = y['fire_spread_rate'] - y_pred
-    plt.hist(residuals, bins=30)
-    plt.show()
-    plt.close()
  # %%   
 
 # get data
