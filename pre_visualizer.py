@@ -1,11 +1,16 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import numpy as np
 import sys
 name = sys.argv[1]
 data = pd.read_csv(name)
+data['fire_spread_rate'] += 0.00001#so the log operation can function
 
-numerical_features = ['current_size', 'fire_spread_rate', 'temperature', 'relative_humidity', 'wind_speed']
+
+data['log_fire_spread_rate'] = np.log(data['fire_spread_rate'])
+
+numerical_features = ['current_size', 'fire_spread_rate', 'temperature', 'relative_humidity', 'wind_speed','log_fire_spread_rate']
 for feature in numerical_features:
     plt.figure(figsize=(10, 4))
     plt.hist(data[feature], bins=20)
