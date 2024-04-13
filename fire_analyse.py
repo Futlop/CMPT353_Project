@@ -1,12 +1,41 @@
 # %%
 import numpy as np
 import pandas as pd
-from fire_model import *
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+def cat2num(df):
+    wind_direction_mapping = {
+        'N': 0,
+        'NE': 45,
+        'E': 90,
+        'SE': 135,
+        'S': 180,
+        'SW': 225,
+        'W': 270,
+        'NW': 315
+    }
+    df['wind_direction'] = df['wind_direction'].map(wind_direction_mapping)
+    df.drop(columns=['wind_direction'], inplace=True)
+    size_class_mapping = {
+       'A': 0, 
+       'B': 1, 
+       'C': 2, 
+       'D': 3,
+       'E': 4
+    }
+    df['size_class'] = df['size_class'].map(size_class_mapping)
+    weather_condition_mapping = {
+        'Cloudy': 0, 
+        'Clear': 1, 
+        'CB Dry': 2, 
+        'Rainshowers': 3, 
+        'CB Wet': 4
+    }
+    df['weather_conditions_over_fire'] = df['weather_conditions_over_fire'].map(weather_condition_mapping)
+    return df
 
-import sys
+
 # Update imports as needed
 
 # Currently set to only take one input file will update as needed
