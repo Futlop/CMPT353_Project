@@ -250,36 +250,50 @@ def compare_score(score1, score2):
         return stats.ttest_ind(score1, score2).pvalue
     else:
         return stats.mannwhitneyu(score1, score2).pvalue
+def plot_hist(model_name, score1, score2):
+    plt.hist(score1, bins=20, alpha=0.5, color='blue', label='New Model')
+    plt.hist(score2, bins=20, alpha=0.5, color='green', label='Old Model')
+    plt.xlabel('R^2 Score')
+    plt.ylabel('Frequency')
+    plt.title('Cross-Validation R^2 Scores: '+ str(model_name))
+    plt.legend()
+    plt.show()
+    plt.close
 # %%
 # Cross-validation: Linear Regression
 linear_cv_scores = cross_val_score(linear_model, X.copy(), y, cv=40, scoring='r2')
 linear_itr1_cv_scores = cross_val_score(linear_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Linear regression old vs new: ', compare_score(linear_cv_scores , linear_itr1_cv_scores))
+plot_hist('Linear Regression', linear_cv_scores, linear_itr1_cv_scores)
 
 # %%
 # Cross-validation: K-nearest Neighbors
 knn_cv_scores = cross_val_score(kNN_model, X.copy(), y, cv=40, scoring='r2')
 knn_itr1_cv_scores = cross_val_score(kNN_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('K-nearest neighbors old vs new: ', compare_score(knn_cv_scores, knn_itr1_cv_scores))
+plot_hist('K-Nearest Neighbors', knn_cv_scores, knn_itr1_cv_scores)
 
 # %%
 # Cross-validation: Random Forest
 rf_cv_scores = cross_val_score(rf_model, X.copy(), y, cv=40, scoring='r2')
 rf_itr1_cv_scores = cross_val_score(rf_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Random forest old vs new: ', compare_score(rf_cv_scores, rf_itr1_cv_scores))
+plot_hist('Random Forest', rf_cv_scores, rf_itr1_cv_scores)
 
 # %%
 # Cross-validation: Neural Network
 mlp_cv_scores = cross_val_score(mlp_model, X.copy(), y, cv=40, scoring='r2')
 mlp_itr1_cv_scores = cross_val_score(mlp_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
-print('Neural Network old vs new: ', compare_score(mlp_cv_scores, mlp_itr1_cv_scores))# %%
-
+print('Neural Network old vs new: ', compare_score(mlp_cv_scores, mlp_itr1_cv_scores))
+plot_hist('Neural Network', mlp_cv_scores, mlp_itr1_cv_scores)
 
 # %%
 # Cross-validation: Gradient Boosting
 xgb_cv_scores = cross_val_score(xgb_model, X.copy(), y, cv=40, scoring='r2')
 xgb_itr1_cv_scores = cross_val_score(xgb_model_itr1, X_itr1.copy(), y, cv=40, scoring='r2')
 print('Gradient Boosting old vs new: ', compare_score(xgb_cv_scores, xgb_itr1_cv_scores))
+plot_hist('Gradient Boosting', xgb_cv_scores, xgb_itr1_cv_scores)
+
 # %%
 # Cross-validation: All
 anova = stats.f_oneway(linear_cv_scores, knn_cv_scores, rf_cv_scores, mlp_cv_scores)
