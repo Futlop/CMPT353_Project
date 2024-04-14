@@ -47,7 +47,6 @@ def clean_data(file):
     data = data[pd.notna(data['uc_fs_date']) == True]
     data = data[pd.notna(data['ia_arrival_at_fire_date']) == True]
     data = data[pd.notna(data['general_cause_desc']) == True]
-    data = data[pd.notna(data['fuel_type']) == True]
     data = data[pd.notna(data['ex_hectares']) == True]
     return data
 

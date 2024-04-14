@@ -3,9 +3,10 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import sys
-name = sys.argv[1]
+#name = sys.argv[1]
+name = 'fire_data.csv'
 data = pd.read_csv(name)
-data['fire_spread_rate'] += 0.00001#so the log operation can function
+data['fire_spread_rate'] += 0.001#so the log operation can function
 
 
 data['log_fire_spread_rate'] = np.log(data['fire_spread_rate'])
